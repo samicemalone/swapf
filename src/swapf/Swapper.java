@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -47,10 +48,12 @@ public class Swapper {
     
     private List<File> fileList;
     private List<Integer> swapIds;
+    private TempFile tempFile;
     
     public Swapper(List<File> list) {
         this.fileList = list;
         swapIds = new ArrayList<Integer>(list.size());
+        tempFile = new TempFile();
     }
     
     /**
@@ -74,7 +77,7 @@ public class Swapper {
         boolean renamedAll = true;
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                tmp = getTempFile(fileList.get(i));
+                tmp = tempFile.getTempFile(fileList.get(i));
                 if(tmp.renameTo(fileList.get(swapIds.get(i)))) {
                     renamedAll &= true;
                 } else {
@@ -102,16 +105,12 @@ public class Swapper {
         // all files are writable here
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                if(!fileList.get(i).renameTo(getTempFile(fileList.get(i)))) {
+                if(!fileList.get(i).renameTo(tempFile.getTempFile(fileList.get(i)))) {
                     return false;
                 }
             }
         }
         return true;
-    }
-    
-    private File getTempFile(File f) {
-        return new File(f.getParentFile(), f.getName() + ".tmp");
     }
     
     /**
