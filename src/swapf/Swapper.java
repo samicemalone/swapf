@@ -89,12 +89,12 @@ public class Swapper {
     }
     
     /**
-     * Renames each file in list to a temporary name.
-     * Each file is checked for write permissions before attempting renaming
-     * @return true if successful, false if error writing or renaming
+     * Checks if the files in fileList that are to be swapped, are
+     * writable
+     * @return true if all the files to be swapped are writable,
+     * false otherwise
      */
-    private boolean renameTemp() {
-        // check all files are writable before renaming
+    private boolean isFilesToSwapWritable() {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 if(!fileList.get(i).canWrite()) {
@@ -102,7 +102,18 @@ public class Swapper {
                 }
             }
         }
-        // all files are writable here
+        return true;
+    }
+    
+    /**
+     * Renames each file in list to a temporary name.
+     * Each file is checked for write permissions before attempting renaming
+     * @return true if successful, false if error writing or renaming
+     */
+    private boolean renameTemp() {
+        if(!isFilesToSwapWritable()) {
+            return false;
+        }
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 if(!fileList.get(i).renameTo(tempFile.getTempFile(fileList.get(i)))) {
