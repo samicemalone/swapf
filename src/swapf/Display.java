@@ -66,6 +66,28 @@ public class Display {
     }
     
     /**
+     * Displays an error message for the previous user input and redisplays
+     * the same prompt for the given index
+     * @param fileList File List
+     * @param index File index to display in list (from 0)
+     * @param message error message to display
+     */
+    public static void displayPromptIdsError(List<File> fileList, int index, String message) {
+        System.out.println(message);
+        displayPromptForId(fileList, index);
+    }
+    
+    /**
+     * Displays the text for prompting for the user for a display ID.
+     * @param fileList File List
+     * @param index File index to display in list (from 0)
+     */
+    public static void displayPromptForId(List<File> fileList, int index) {
+        System.out.print(numberedFileName(fileList, index));
+        System.out.print(" => ");
+    }
+    
+    /**
      * Print the help message
      */
     public static void printHelp() {

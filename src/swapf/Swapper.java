@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  *
@@ -183,13 +182,12 @@ public class Swapper {
     public void promptIds() {
         int tmpInput;
         for (int i = 0; i < fileList.size(); i++) {
-            System.out.print(Display.numberedFileName(fileList, i));
-            System.out.print(" => ");
+            Display.displayPromptForId(fileList, i);
             while ((tmpInput = readUserInput()) < 0) {
                 if(tmpInput == SWAP_ID_INVALID) {
-                    displayPromptIdsError(i, "Invalid filename ID");
+                    Display.displayPromptIdsError(fileList, i, "Invalid filename ID");
                 } else if (tmpInput == DUPLICATE_SWAP_ID) {
-                    displayPromptIdsError(i, "You can only use each ID once");
+                    Display.displayPromptIdsError(fileList, i, "You can only use each ID once");
                 } else {
                     break;
                 }
@@ -201,18 +199,6 @@ public class Swapper {
                 swapIds.add(tmpInput);
             }
         }
-    }
-    
-    /**
-     * Displays an error message for the previous user input and redisplays
-     * the same prompt for the given index
-     * @param index file index
-     * @param message error message
-     */
-    private void displayPromptIdsError(int index, String message) {
-        System.out.println(message);
-        System.out.print(Display.numberedFileName(fileList, index));
-        System.out.print(" => ");
     }
     
     /**
