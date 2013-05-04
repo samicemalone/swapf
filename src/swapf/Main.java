@@ -48,9 +48,7 @@ public class Main {
             System.exit(1);
         }
         System.out.print(Display.formattedFileList(arguments.getFileList()));
-        System.out.println();
-        System.out.println("Enter the ID of the filename to swap (blank to ignore):");
-        System.out.println();
+        System.out.println("\nEnter the ID of the filename to swap (blank to ignore):\n");
         Swapper s = new Swapper(arguments.getFileList());
         s.promptIds();
         System.out.println();
@@ -61,8 +59,7 @@ public class Main {
         if (s.isSwapListEmpty()) {
             System.exit(0);
         }
-        System.out.println("Preview Swaps:");
-        System.out.println();
+        System.out.println("Preview Swaps:\n");
         System.out.println(s.preview());
         System.out.print("Swap Files? y/[n]: ");
         if(s.confirmSwaps()) {
