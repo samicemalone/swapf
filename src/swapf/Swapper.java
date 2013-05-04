@@ -45,12 +45,12 @@ public class Swapper {
     public static final int EMPTY_INPUT = -2;
     public static final int DUPLICATE_SWAP_ID = -3;
     
-    private FileList list;
+    private List<File> fileList;
     private List<Integer> swapIds;
     
-    public Swapper(FileList list) {
-        this.list = list;
-        swapIds = new ArrayList<Integer>(list.getList().size());
+    public Swapper(List<File> list) {
+        this.fileList = list;
+        swapIds = new ArrayList<Integer>(list.size());
     }
     
     /**
@@ -74,8 +74,8 @@ public class Swapper {
         boolean renamedAll = true;
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                tmp = getTempFile(list.getList().get(i));
-                if(tmp.renameTo(list.getList().get(swapIds.get(i)))) {
+                tmp = getTempFile(fileList.get(i));
+                if(tmp.renameTo(fileList.get(swapIds.get(i)))) {
                     renamedAll &= true;
                 } else {
                     renamedAll = false;
@@ -94,7 +94,7 @@ public class Swapper {
         // check all files are writable before renaming
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                if(!list.getList().get(i).canWrite()) {
+                if(!fileList.get(i).canWrite()) {
                     return false;
                 }
             }
@@ -102,7 +102,7 @@ public class Swapper {
         // all files are writable here
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                if(!list.getList().get(i).renameTo(getTempFile(list.getList().get(i)))) {
+                if(!fileList.get(i).renameTo(getTempFile(fileList.get(i)))) {
                     return false;
                 }
             }
@@ -158,9 +158,9 @@ public class Swapper {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < swapIds.size(); i++) {
             if (swapIds.get(i) != EMPTY_INPUT) {
-                sb.append(list.getList().get(i).getName());
+                sb.append(fileList.get(i).getName());
                 sb.append("\n => ");
-                sb.append(list.getList().get(swapIds.get(i)).getName());
+                sb.append(fileList.get(swapIds.get(i)).getName());
                 sb.append('\n');
             }
         }
@@ -172,8 +172,8 @@ public class Swapper {
      */
     public void promptIds() {
         int tmpInput;
-        for (int i = 0; i < list.getList().size(); i++) {
-            System.out.print(list.formatLine(i));
+        for (int i = 0; i < fileList.size(); i++) {
+            System.out.print(Display.numberedFileName(fileList, i));
             System.out.print(" => ");
             while ((tmpInput = readUserInput()) < 0) {
                 if(tmpInput == SWAP_ID_INVALID) {
@@ -201,7 +201,7 @@ public class Swapper {
      */
     private void displayPromptIdsError(int index, String message) {
         System.out.println(message);
-        System.out.print(list.formatLine(index));
+        System.out.print(Display.numberedFileName(fileList, index));
         System.out.print(" => ");
     }
     
@@ -219,7 +219,7 @@ public class Swapper {
             }
             // user display index start from 1, so decrement for real index
             i = Integer.parseInt(input) - 1;
-            if (i < 0 || i >= list.getList().size()) {
+            if (i < 0 || i >= fileList.size()) {
                 return SWAP_ID_INVALID;
             }
             if (swapIds.contains(i)) {

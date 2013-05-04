@@ -28,48 +28,53 @@
  */
 package swapf;
 
+import java.io.File;
+import java.util.List;
+
 /**
  *
  * @author Sam Malone
  */
-public class Main {
-
+public class Display {
+    
     /**
-     * @param args the command line arguments
+     * Gets a formatted display string to display ID's to the user
+     * with the file name
+     * @param list File list
+     * @return Formatted display string e.g. 1) File.Name.ext
      */
-    public static void main(String[] args) {
-        Args arguments = Args.parse(args);
-        if(arguments == null) {
-            Display.printHelp();
-            System.exit(0);
+    public static String formattedFileList(List<File> list) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            sb.append(numberedFileName(list, i));
+            sb.append('\n');
         }
-        if(!Args.validate(arguments)) {
-            System.out.println("The input files are not valid");
-            System.exit(1);
-        }
-        System.out.print(Display.formattedFileList(arguments.getFileList()));
+        return sb.toString();
+    }
+    
+    /**
+     * Gets a formatted display string to show the user the display ID and 
+     * filename for the given file list with index (from 0). The ID displayed 
+     * to the user will start from 1.
+     * @param list File list
+     * @param index File index to display in list (from 0)
+     * @return String with display ID and file name e.g. 1) File.Name.ext
+     */
+    public static String numberedFileName(List<File> list, int index) {
+        int padWidth = String.valueOf(list.size()).length();
+        return String.format("%" + padWidth + "s) %s", String.valueOf(index+1), list.get(index).getName());
+    }
+    
+    /**
+     * Print the help message
+     */
+    public static void printHelp() {
+        System.out.println("Usage: swapf [-h] FILE...");
+        System.out.println("Swaps each input FILE names");
+        System.out.println("This program is interactive. It will list the input files");
+        System.out.println("with an ID and prompt for each FILE which ID's to swap with.");
         System.out.println();
-        System.out.println("Enter the ID of the filename to swap (blank to ignore):");
-        System.out.println();
-        Swapper s = new Swapper(arguments.getFileList());
-        s.promptIds();
-        System.out.println();
-        if (!s.isSwapsValid()) {
-            System.out.println("The IDs entered for swapping do not swap all ID's entered");
-            System.exit(1);
-        }
-        if (s.isSwapListEmpty()) {
-            System.exit(0);
-        }
-        System.out.println("Preview Swaps:");
-        System.out.println();
-        System.out.println(s.preview());
-        System.out.print("Swap Files? y/[n]: ");
-        if(s.confirmSwaps()) {
-            if(!s.swap()) {
-                System.out.println("An error occured when trying to rename the files. Check you have write permission to the input files");
-            }
-        }
+        System.out.println("   -h      Displays this message and exits");
     }
     
 }
