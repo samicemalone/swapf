@@ -76,7 +76,7 @@ public class Swapper {
         boolean renamedAll = true;
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                tmp = tempFile.getTempFile(fileList.get(i));
+                tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
                 if(tmp.renameTo(fileList.get(swapIds.get(i)))) {
                     renamedAll &= true;
                 } else {
@@ -105,7 +105,9 @@ public class Swapper {
     }
     
     /**
-     * Renames each file in list to a temporary name.
+     * Renames each file in list to a temporary name. The temporary file
+     * will be located in the directory of the file to be swapped to. Its
+     * file name will be based on the file to be swapped to.
      * Each file is checked for write permissions before attempting renaming
      * @return true if successful, false if error writing or renaming
      */
@@ -115,7 +117,7 @@ public class Swapper {
         }
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                if(!fileList.get(i).renameTo(tempFile.getTempFile(fileList.get(i)))) {
+                if(!fileList.get(i).renameTo(tempFile.getTempFile(fileList.get(swapIds.get(i))))) {
                     return false;
                 }
             }
