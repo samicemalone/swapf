@@ -28,6 +28,8 @@
  */
 package swapf;
 
+import java.io.IOException;
+
 /**
  *
  * @author Sam Malone
@@ -62,10 +64,13 @@ public class Main {
         System.out.println("Preview Swaps:\n");
         System.out.println(s.preview());
         System.out.print("Swap Files? y/[n]: ");
-        if(s.confirmSwaps()) {
-            if(!s.swap()) {
-                System.out.println("An error occured when trying to rename the files. Check you have write permission to the input files");
-            }
+        if(!s.confirmSwaps()) {
+            System.exit(0);
+        }
+        try {
+            s.swap();
+        } catch(IOException e) {
+            System.err.println(e.getMessage());
         }
     }
     

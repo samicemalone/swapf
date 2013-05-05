@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -56,73 +57,127 @@ public class Swapper {
     }
     
     /**
-     * Swaps all the files in list with the user entered swapIds
-     * @return true if all the files were renamed. false otherwise
+     * Swaps all the files in fileList with the user entered swapIds
+     * @throws IOException if there is an error when swapping the
+     * files.
      */
-    public boolean swap() {
-        if(renameTemp()) {
-            swapFiles();
-            return true;
-        }
-        return false;
+    public void swap() throws IOException {
+        assertFilesToSwapWritable();
+        moveToTemp();
+        moveToDestination();
     }
     
     /**
-     * Swaps the files in list with the user entered swapIds
-     * @return true if all the files were renamed. false otherwise
+     * Moves each file in fileList that is to be swapped, from its  
+     * temporary location to its destination. If there is an error when
+     * moving, an attempt will be made to roll back the files to their 
+     * existing location
+     * @throws IOException if there was an error moving a temporary file to
+     * its destination
      */
-    private boolean swapFiles() {
-        File tmp;
-        boolean renamedAll = true;
+    private void moveToDestination() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
-                if(tmp.renameTo(fileList.get(swapIds.get(i)))) {
-                    renamedAll &= true;
-                } else {
-                    renamedAll = false;
+                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                try {
+                    FileUtils.moveFile(tmp, fileList.get(swapIds.get(i)));
+                } catch(IOException e) {
+                    rollbackToTemp(i);
+                    rollbackTemp(fileList.size());
+                    throw e;
                 }
             }
         }
-        return renamedAll;
     }
     
     /**
-     * Checks if the files in fileList that are to be swapped, are
-     * writable
-     * @return true if all the files to be swapped are writable,
-     * false otherwise
+     * Attempts to roll back the file that has been swapped to its temporary 
+     * location.
+     * @param count number of files to roll back. 0 < count <= fileList.size()
      */
-    private boolean isFilesToSwapWritable() {
+    private void rollbackToTemp(int count) {
+        for(int i = 0; i < count; i++) {
+            if(swapIds.get(i) != EMPTY_INPUT) {
+                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                rollback(fileList.get(swapIds.get(i)), tmp);
+            }
+        }
+    }
+    
+    /**
+     * Attempts to roll back the temporary files to their original location
+     * @param count number of files to roll back. 0 < count <= fileList.size()
+     */
+    private void rollbackTemp(int count) {
+        for(int i = 0; i < count; i++) {
+            if(swapIds.get(i) != EMPTY_INPUT) {
+                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                rollback(tmp, fileList.get(i));
+            }
+        }
+    }
+    
+    /**
+     * Attempts to roll back the file that has been swapped to its temporary 
+     * file only if the destination file doesn't exist.
+     */
+    private void rollback(File srcFile, File destFile) {
+        if(destFile.exists()) {
+            return;
+        }
+        if(srcFile.exists()) {
+            try {
+                FileUtils.moveFile(srcFile, destFile);
+            } catch(IOException e) {
+
+            }
+        }
+    }
+    
+    /**
+     * Asserts that the files in fileList that are to be swapped, are
+     * writable. Both original file and swap location directories 
+     * are also checked for write access
+     * @throws IOException If any file does not have write access
+     */
+    private void assertFilesToSwapWritable() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
+                String message = "The file %s is not writable";
                 if(!fileList.get(i).canWrite()) {
-                    return false;
+                    throw new IOException(String.format(message, fileList.get(i).getAbsolutePath()));
+                }
+                if(!fileList.get(i).getAbsoluteFile().getParentFile().canWrite()) {
+                    throw new IOException(String.format(message, fileList.get(i).getAbsoluteFile().getParentFile().getAbsolutePath()));
+                }
+                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                if(!tmp.getAbsoluteFile().getParentFile().canWrite()) {
+                    throw new IOException(String.format(message, tmp.getAbsoluteFile().getParentFile().getAbsolutePath()));
                 }
             }
         }
-        return true;
     }
     
     /**
-     * Renames each file in list to a temporary name. The temporary file
-     * will be located in the directory of the file to be swapped to. Its
-     * file name will be based on the file to be swapped to.
-     * Each file is checked for write permissions before attempting renaming
-     * @return true if successful, false if error writing or renaming
+     * Moves each file in fileList that is to be swapped, to a temporary 
+     * location. The temporary file will be located in the directory of 
+     * the file to be swapped to. Its file name will be based on the file
+     * to be swapped to. If there is an error when moving, then an attempt
+     * will be made to roll back the files to their existing location
+     * @throws IOException if there was an error when moving a file to its
+     * temporary location
      */
-    private boolean renameTemp() {
-        if(!isFilesToSwapWritable()) {
-            return false;
-        }
+    private void moveToTemp() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                if(!fileList.get(i).renameTo(tempFile.getTempFile(fileList.get(swapIds.get(i))))) {
-                    return false;
+                try {
+                    FileUtils.moveFile(fileList.get(i), tempFile.getTempFile(fileList.get(swapIds.get(i))));
+                } catch(IOException e) {
+                    rollbackTemp(i);
+                    throw e;
                 }
             }
         }
-        return true;
     }
     
     /**
