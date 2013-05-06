@@ -78,7 +78,7 @@ public class Swapper {
     private void moveToDestination() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                File tmp = tempFile.getTempFile(fileList.get(i));
                 try {
                     FileUtils.moveFile(tmp, fileList.get(swapIds.get(i)));
                 } catch(IOException e) {
@@ -98,7 +98,7 @@ public class Swapper {
     private void rollbackToTemp(int count) {
         for(int i = 0; i < count; i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                File tmp = tempFile.getTempFile(fileList.get(i));
                 rollback(fileList.get(swapIds.get(i)), tmp);
             }
         }
@@ -111,7 +111,7 @@ public class Swapper {
     private void rollbackTemp(int count) {
         for(int i = 0; i < count; i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
-                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
+                File tmp = tempFile.getTempFile(fileList.get(i));
                 rollback(tmp, fileList.get(i));
             }
         }
@@ -160,18 +160,18 @@ public class Swapper {
     
     /**
      * Moves each file in fileList that is to be swapped, to a temporary 
-     * location. The temporary file will be located in the directory of 
-     * the file to be swapped to. Its file name will be based on the file
-     * to be swapped to. If there is an error when moving, then an attempt
+     * location. The temporary file will be located in the same directory 
+     * as the original file and its file name will also be based on the
+     * original file. If there is an error when moving, then an attempt
      * will be made to roll back the files to their existing location
-     * @throws IOException if there was an error when moving a file to its
-     * temporary location
+     * @throws IOException if there was an error when moving a file to
+     * its temporary location
      */
     private void moveToTemp() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 try {
-                    FileUtils.moveFile(fileList.get(i), tempFile.getTempFile(fileList.get(swapIds.get(i))));
+                    FileUtils.moveFile(fileList.get(i), tempFile.getTempFile(fileList.get(i)));
                 } catch(IOException e) {
                     rollbackTemp(i);
                     throw e;
