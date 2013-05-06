@@ -71,4 +71,22 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-post-jar">
+        <!-- Copy lib folder to dist -->
+        <copy todir="${dist.dir}">
+            <fileset dir=".">  
+                <include name="lib/**"/>
+            </fileset>
+        </copy>
+        <!-- Delete build directory -->
+        <delete includeEmptyDirs="true">
+            <fileset dir="${build.dir}"/>
+        </delete>
+        <!-- Delete IDE generated README.txt file -->
+        <delete file="${dist.dir}/README.txt" />
+        <!-- Copy files to dist -->
+        <copy file="NOTICE" todir="${dist.dir}"/>
+        <copy file="LICENSE" todir="${dist.dir}"/>
+    </target>
+    
 </project>
