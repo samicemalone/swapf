@@ -30,6 +30,7 @@ package swapf;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -80,9 +81,7 @@ public class Args {
             } else {
                 input = new File(getPath(arg));
                 if (input.isDirectory()) {
-                    for(String file : input.list()) {
-                        list.add(new File(input, file));
-                    }
+                    list.addAll(Arrays.asList(input.listFiles(new FileFilter())));
                 } else {
                     list.add(input);
                 }
