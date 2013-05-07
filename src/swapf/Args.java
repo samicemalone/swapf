@@ -29,6 +29,7 @@
 package swapf;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,15 +95,21 @@ public class Args {
     /**
      * Validates the argument given
      * @param args Parsed Arguments to validate
-     * @return true if the Args given are valid, false otherwise
+     * @throws FileNotFoundException if any of the input FILE arguments do
+     * not exists
+     * @throws FileNotFoundException if there are no files to swap or if only
+     * 1 file to swap
      */
-    public static boolean validate(Args args) {
+    public static void validate(Args args) throws FileNotFoundException {
         for(File f : args.fileList) {
             if (!f.exists()) {
-                return false;
+                throw new FileNotFoundException(String.format("The input file %s does not exist", f.getAbsolutePath()));
             }
         }
-        return !args.fileList.isEmpty();
+        switch(args.fileList.size()) {
+            case 0: throw new FileNotFoundException("There are no files to swap");
+            case 1: throw new FileNotFoundException("You cannot swap only one file. You must have at least 2 files to swap file names");
+        }
     }
     
 }

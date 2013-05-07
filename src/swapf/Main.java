@@ -28,6 +28,7 @@
  */
 package swapf;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -45,8 +46,10 @@ public class Main {
             Display.printHelp();
             System.exit(0);
         }
-        if(!Args.validate(arguments)) {
-            System.out.println("The input files are not valid");
+        try {
+            Args.validate(arguments);
+        } catch(FileNotFoundException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
         }
         System.out.print(Display.formattedFileList(arguments.getFileList()));
