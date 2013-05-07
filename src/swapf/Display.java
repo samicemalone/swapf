@@ -92,9 +92,9 @@ public class Display {
      */
     public static void printHelp() {
         System.out.println("Usage: swapf [-h] FILE...");
-        System.out.println("Swaps each input FILE names");
+        System.out.println("Swap the filenames of the input FILEs.");
         System.out.println("This program is interactive. It will list the input files");
-        System.out.println("with an ID and prompt for each FILE which ID's to swap with.");
+        System.out.println("with an ID, and prompt for each FILE - which ID's to swap with.");
         System.out.println();
         System.out.println("   -h      Displays this message and exits");
     }
