@@ -289,7 +289,7 @@ public class Swapper {
                 sb.append(fileList.get(i).getName());
                 sb.append("\n => ");
                 sb.append(fileList.get(swapIds.get(i)).getName());
-                sb.append('\n');
+                sb.append("\n\n");
             }
         }
         return sb.toString();
