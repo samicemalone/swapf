@@ -79,7 +79,7 @@ public class Swapper {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 File tmp = tempFile.getTempFile(fileList.get(i));
                 try {
-                    rename(tmp, fileList.get(swapIds.get(i)));
+                    renameFileName(tmp, fileList.get(swapIds.get(i)).getName());
                 } catch(IOException e) {
                     rollbackToTemp(i);
                     rollbackTemp(fileList.size());
@@ -102,7 +102,7 @@ public class Swapper {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 try {
-                    rename(fileList.get(i), tempFile.getTempFile(fileList.get(i)));
+                    renameFileName(fileList.get(i), tempFile.getTempFile(fileList.get(i)).getName());
                 } catch(IOException e) {
                     rollbackTemp(i);
                     throw e;
@@ -112,14 +112,16 @@ public class Swapper {
     }
     
     /**
-     * Renames the File srcFile to destFile if destFile doesn't already exist.
+     * Renames the File srcFile to the file name specified by destFileName
+     * if this doesn't already exist.
      * @param srcFile File to be renamed
-     * @param destFile File to be renamed to
-     * @throws IOException if the destination file already exists
+     * @param destFileName Filename to rename srcFile to
+     * @throws IOException if the destination file name already exists
      * @throws IOException if write access was not granted to rename
      * @throws IOException if renaming failed
      */
-    private void rename(File srcFile, File destFile) throws IOException {
+    private void renameFileName(File srcFile, String destFileName) throws IOException {
+        File destFile = new File(srcFile.getAbsoluteFile().getParentFile(), destFileName);
         String message = String.format("Unable to rename %s to the destination %s", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
         if(destFile.exists()) {
             throw new IOException(message + " because the destination file already exists");
@@ -170,7 +172,7 @@ public class Swapper {
         }
         if(srcFile.exists()) {
             try {
-                rename(srcFile, destFile);
+                renameFileName(srcFile, destFile.getName());
             } catch(IOException e) {
 
             }
