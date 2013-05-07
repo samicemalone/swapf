@@ -200,10 +200,53 @@ public class Swapper {
     }
     
     /**
+     * Asserts that the swap destination file is valid. To be considered
+     * valid, the destination file must either not exist at all or exist
+     * but is in fileList and to be swapped. When the destination file
+     * does exist, (and is to be swapped) no filename conflicts should 
+     * occur because the files are renamed to temporary files first.
+     * @param srcFile File to be renamed
+     * @param destFileName Filename to rename srcFile to
+     * @throws IOException if a file already exists that would conflict
+     * with the filename swap
+     */
+    private void assertSwapDestinationValid(int index, File srcFile, String destFileName) throws IOException {
+        File destFile = new File(srcFile.getAbsoluteFile().getParentFile(), destFileName);
+        if(destFile.exists()) {
+            if(destFile.getAbsoluteFile().equals(fileList.get(swapIds.get(index)).getAbsoluteFile())) {
+                return;
+            }
+            throw new IOException("Swapping filenames could not be completed because " + destFile.getAbsolutePath() + " already exists");
+        }
+    }
+    
+    /**
+     * Attempts to validate the swaps the user has input and asserts that the
+     * swap destination files will also be valid.
+     * @throws IOException if the swaps the user has entered are not valid
+     * @throws IOException if no swaps were entered
+     * @throws IOException if a file already exists in a swap destination file
+     * that will conflict with a rename.
+     */
+    public void validateSwaps() throws IOException {
+        if(!isUserSwapsValid()) {
+            throw new IOException("The IDs entered for swapping do not swap all ID's entered");
+        }
+        if(isSwapListEmpty()) {
+            throw new IOException("No swaps were entered. Nothing to do.");
+        }
+        for(int i = 0; i < swapIds.size(); i++) {
+            if(swapIds.get(i) != EMPTY_INPUT) {
+                assertSwapDestinationValid(i, fileList.get(i), fileList.get(swapIds.get(i)).getName());
+            }
+        }
+    }
+    
+    /**
      * Checks if the ID's the user has entered are valid swaps
      * @return true if the swaps are valid, false otherwise
      */
-    public boolean isSwapsValid() {
+    public boolean isUserSwapsValid() {
         boolean valid = true;
         for (int i = 0; i < swapIds.size(); i++) {
             if (swapIds.get(i) != EMPTY_INPUT) {

@@ -54,12 +54,11 @@ public class Main {
         Swapper s = new Swapper(arguments.getFileList());
         s.promptIds();
         System.out.println();
-        if (!s.isSwapsValid()) {
-            System.out.println("The IDs entered for swapping do not swap all ID's entered");
+        try {
+            s.validateSwaps();
+        } catch(IOException e) {
+            System.err.println(e.getMessage());
             System.exit(1);
-        }
-        if (s.isSwapListEmpty()) {
-            System.exit(0);
         }
         System.out.println("Preview Swaps:\n");
         System.out.println(s.preview());
