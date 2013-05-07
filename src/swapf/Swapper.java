@@ -181,8 +181,8 @@ public class Swapper {
     
     /**
      * Asserts that the files in fileList that are to be swapped, are
-     * writable. Both original file and swap location directories 
-     * are also checked for write access
+     * writable. The original file and its parent will be checked for
+     * write access.
      * @throws IOException If any file does not have write access
      */
     private void assertFilesToSwapWritable() throws IOException {
@@ -194,10 +194,6 @@ public class Swapper {
                 }
                 if(!fileList.get(i).getAbsoluteFile().getParentFile().canWrite()) {
                     throw new IOException(String.format(message, fileList.get(i).getAbsoluteFile().getParentFile().getAbsolutePath()));
-                }
-                File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
-                if(!tmp.getAbsoluteFile().getParentFile().canWrite()) {
-                    throw new IOException(String.format(message, tmp.getAbsoluteFile().getParentFile().getAbsolutePath()));
                 }
             }
         }
