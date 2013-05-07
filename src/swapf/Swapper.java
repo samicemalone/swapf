@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -63,30 +62,74 @@ public class Swapper {
      */
     public void swap() throws IOException {
         assertFilesToSwapWritable();
-        moveToTemp();
-        moveToDestination();
+        renameToTemp();
+        renameToDestination();
     }
     
     /**
-     * Moves each file in fileList that is to be swapped, from its  
+     * Renames each file in fileList that is to be swapped, from its  
      * temporary location to its destination. If there is an error when
-     * moving, an attempt will be made to roll back the files to their 
+     * renaming, an attempt will be made to roll back the files to their 
      * existing location
      * @throws IOException if there was an error moving a temporary file to
      * its destination
      */
-    private void moveToDestination() throws IOException {
+    private void renameToDestination() throws IOException {
         for(int i = 0; i < swapIds.size(); i++) {
             if(swapIds.get(i) != EMPTY_INPUT) {
                 File tmp = tempFile.getTempFile(fileList.get(i));
                 try {
-                    FileUtils.moveFile(tmp, fileList.get(swapIds.get(i)));
+                    rename(tmp, fileList.get(swapIds.get(i)));
                 } catch(IOException e) {
                     rollbackToTemp(i);
                     rollbackTemp(fileList.size());
                     throw e;
                 }
             }
+        }
+    }
+      
+    /**
+     * Renames each file in fileList that is to be swapped, to a temporary 
+     * location in the same directory as the original file and its file
+     * name will also be based on the original file. If there is an error
+     * when renaming, then an attempt will be made to roll back the files
+     * to their existing location
+     * @throws IOException if there was an error when renaming a file to
+     * its temporary location
+     */
+    private void renameToTemp() throws IOException {
+        for(int i = 0; i < swapIds.size(); i++) {
+            if(swapIds.get(i) != EMPTY_INPUT) {
+                try {
+                    rename(fileList.get(i), tempFile.getTempFile(fileList.get(i)));
+                } catch(IOException e) {
+                    rollbackTemp(i);
+                    throw e;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Renames the File srcFile to destFile if destFile doesn't already exist.
+     * @param srcFile File to be renamed
+     * @param destFile File to be renamed to
+     * @throws IOException if the destination file already exists
+     * @throws IOException if write access was not granted to rename
+     * @throws IOException if renaming failed
+     */
+    private void rename(File srcFile, File destFile) throws IOException {
+        String message = String.format("Unable to rename %s to the destination %s", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+        if(destFile.exists()) {
+            throw new IOException(message + " because the destination file already exists");
+        }
+        try {
+            if(!srcFile.renameTo(destFile)) {
+                throw new IOException(message);
+            }
+        } catch(SecurityException e) {
+            throw new IOException(message + " because write access was denied to one/both files");
         }
     }
     
@@ -127,7 +170,7 @@ public class Swapper {
         }
         if(srcFile.exists()) {
             try {
-                FileUtils.moveFile(srcFile, destFile);
+                rename(srcFile, destFile);
             } catch(IOException e) {
 
             }
@@ -153,28 +196,6 @@ public class Swapper {
                 File tmp = tempFile.getTempFile(fileList.get(swapIds.get(i)));
                 if(!tmp.getAbsoluteFile().getParentFile().canWrite()) {
                     throw new IOException(String.format(message, tmp.getAbsoluteFile().getParentFile().getAbsolutePath()));
-                }
-            }
-        }
-    }
-    
-    /**
-     * Moves each file in fileList that is to be swapped, to a temporary 
-     * location. The temporary file will be located in the same directory 
-     * as the original file and its file name will also be based on the
-     * original file. If there is an error when moving, then an attempt
-     * will be made to roll back the files to their existing location
-     * @throws IOException if there was an error when moving a file to
-     * its temporary location
-     */
-    private void moveToTemp() throws IOException {
-        for(int i = 0; i < swapIds.size(); i++) {
-            if(swapIds.get(i) != EMPTY_INPUT) {
-                try {
-                    FileUtils.moveFile(fileList.get(i), tempFile.getTempFile(fileList.get(i)));
-                } catch(IOException e) {
-                    rollbackTemp(i);
-                    throw e;
                 }
             }
         }
