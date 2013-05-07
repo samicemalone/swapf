@@ -85,6 +85,8 @@
         <!-- Delete IDE generated README.txt file -->
         <delete file="${dist.dir}/README.txt" />
         <!-- Copy files to dist -->
+        <copy file="INSTALL.txt" todir="${dist.dir}"/>
+        <copy file="README.txt" todir="${dist.dir}"/>
         <copy file="LICENSE" todir="${dist.dir}"/>
     </target>
     
